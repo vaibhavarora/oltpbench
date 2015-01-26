@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<parameters>
+	
+    <!-- Connection details -->
+    <dbtype>monetdb</dbtype>
+    <driver>nl.cwi.monetdb.jdbc.MonetDriver</driver>
+    <DBUrl>jdbc:monetdb://127.0.0.1/test</DBUrl>
+    <!--<DBUrl>http://localhost:8080/hybridEngine</DBUrl>--> 
+    <username>monetdb</username>
+    <password>monetdb</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    
+    <!-- Scale factor is the number of warehouses in TPCC -->
+    <scalefactor>2</scalefactor>
+    
+    <!-- The workload -->
+    <terminals>4</terminals>
+    <works>
+        <work>
+          <time>10</time>
+          <rate>40</rate>
+          <weights>100,0,0,0,0</weights>
+        </work>
+	</works>
+	
+	<!-- TPCC specific -->  	
+   	<transactiontypes>
+    	<transactiontype>
+    		<name>NewOrder</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Payment</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>OrderStatus</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Delivery</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>StockLevel</name>
+    	</transactiontype>
+   	</transactiontypes>	
+</parameters>

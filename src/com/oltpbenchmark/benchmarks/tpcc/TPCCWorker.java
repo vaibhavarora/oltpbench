@@ -31,6 +31,12 @@ import java.sql.SQLException;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import messaging.HybridEngine.ApplicationClientRequest;
+import messaging.HybridEngine.HybridStoreService.BlockingInterface;
+
+import com.google.protobuf.RpcController;
+import com.google.protobuf.ServiceException;
+import com.googlecode.protobuf.socketrpc.SocketRpcController;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -58,6 +64,8 @@ public class TPCCWorker extends Worker {
 	private final Random gen = new Random();
 
 	private int transactionCount = 1, numWarehouses;
+	
+	private boolean transactionStatus = false;
 
 	private static final AtomicInteger terminalId = new AtomicInteger(0);
 
@@ -88,6 +96,7 @@ public class TPCCWorker extends Worker {
     protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
         try {
             TPCCProcedure proc = (TPCCProcedure) this.getProcedure(nextTransaction.getProcedureClass());
+                
             proc.run(conn, gen, terminalWarehouseID, numWarehouses,
                     terminalDistrictLowerID, terminalDistrictUpperID, this);
         } catch (ClassCastException ex){
@@ -95,12 +104,18 @@ public class TPCCWorker extends Worker {
         	System.err.println("We have been invoked with an INVALID transactionType?!");
         	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
 	    } catch (RuntimeException ex) {
+	        ex.printStackTrace();
 	        conn.rollback();
 	        return (TransactionStatus.RETRY_DIFFERENT);
 	    }
 		transactionCount++;
-        conn.commit();
-        return (TransactionStatus.SUCCESS);
+        //conn.commit();
+		if(transactionStatus){
+		    return (TransactionStatus.SUCCESS);
+		} else {
+		    return (TransactionStatus.USER_ABORTED);
+		}
+        
 	}
 
 //	/**
@@ -188,4 +203,8 @@ public class TPCCWorker extends Worker {
 //	public Connection getConnection() {
 //		return conn;
 //	}
+	
+	public void setTransactionStatus(boolean transactionStatus){
+	    this.transactionStatus = transactionStatus;
+	}
 }

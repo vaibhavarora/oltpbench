@@ -1,0 +1,89 @@
+package messaging;
+option java_generic_services = true;
+
+message ApplicationClientRequest {
+  required string data_operation = 1;
+}
+
+message ApplicationClientResponse {
+  required bool operation_successful = 1;
+  
+  optional string result_string = 2;
+}
+
+message TransactionalBeginRequest {
+  required int64 transaction_id = 1;
+}
+
+message TransactionalOperationRequest {
+  required int64 transaction_id = 1;
+  
+  required string operation = 2;
+}
+
+message TransactionalCommitRequest {
+  required int64 transaction_id = 1;
+}
+
+message TransactionalOperationResponse {
+  required int64 transaction_id = 1;
+  
+  required bool operation_successful = 2;
+  
+  optional string result_string = 3;
+}
+
+message AnalyticalOperationRequest {
+  required int64 operation_id = 1;
+
+  required string query = 2;
+}
+
+message AnalyticalOperationResponse {
+  required int64 operation_id = 1;
+
+  required bool operation_successful = 2;
+  
+  repeated Tuples tupleList = 3;
+}
+
+message TransactionalBatchRequest {
+  required int32 partion_id = 1;
+  
+  required int32 batch_id = 2;
+  
+  required bool waitToIngest = 3;
+  
+  repeated SerializedTransaction transactionList = 4;
+}
+
+message TransactionalBatchResponse {
+  required int32 batch_id = 1;
+  
+  required bool operation_successful = 2;
+}
+
+message SerializedTransaction {
+  required int64 transaction_id = 1;
+  
+  required int64 operation_commit_time = 2;
+  
+  repeated string updateOperation = 3;
+}
+
+message Tuples {
+  required string key = 1;
+
+  required string value = 2;
+}
+
+//Services
+
+service HybridStoreService {
+  rpc ProcessDataOperation(ApplicationClientRequest) returns (ApplicationClientResponse);
+  rpc BeginTransaction(TransactionalBeginRequest) returns (TransactionalOperationResponse);
+  rpc TransactionalOperation(TransactionalOperationRequest) returns (TransactionalOperationResponse);
+  rpc CommitTransaction(TransactionalCommitRequest) returns (TransactionalOperationResponse);
+  rpc AnalyticalOperation(AnalyticalOperationRequest) returns (AnalyticalOperationResponse);
+  rpc TransferTransactionalBatch(TransactionalBatchRequest) returns (TransactionalBatchResponse);
+}
