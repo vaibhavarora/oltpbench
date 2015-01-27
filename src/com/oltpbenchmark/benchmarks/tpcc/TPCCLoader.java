@@ -111,8 +111,8 @@ public class TPCCLoader extends Loader{
 				if(this.getDatabaseType()== DatabaseType.POSTGRES )
 					sql = SQLUtil.getInsertSQL(catalog_tbl, false);
 				else
-					sql = SQLUtil.getInsertSQL(catalog_tbl);
-
+					sql = SQLUtil.getInsertSQL(catalog_tbl, false);
+         
         PreparedStatement stmt = this.conn.prepareStatement(sql);
         return stmt;
 	}
@@ -356,6 +356,7 @@ public class TPCCLoader extends Loader{
 			LOG.debug("End Whse Load @  " + now);
 
 		} catch (SQLException se) {
+		    se.printStackTrace();
 			LOG.debug(se.getMessage());
 			transRollback();
 		} catch (Exception e) {
